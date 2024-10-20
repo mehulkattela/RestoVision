@@ -3,25 +3,21 @@
 **LangChain, OpenAI, HuggingFace, Chroma, SQL, Streamlit, Docker**
 
 ## Summary
-RestoVision is an AI-powered chatbot designed to assist restaurants in analyzing operational and financial data to make informed decisions. The application converts natural language queries into SQL, retrieves relevant data, and presents actionable insights.
+RestoVision is an AI-powered application designed to assist restaurants in analyzing operational and financial data to make informed decisions. The application converts natural language queries into SQL, retrieves relevant data, and presents actionable insights.
 
 ![image](https://github.com/user-attachments/assets/2d836e22-c0f5-4ac3-aaae-255c74863735)
 
 ## Features
-- **Financial Analysis:** Provides insights into revenue, costs, and profit margins.
-- **Operational Metrics:** Tracks key performance indicators (KPIs) like table turnover rates and customer footfall.
-- **Data Visualization:** Presents data in intuitive charts and graphs for easier comprehension.
-- **Custom Reports:** Generates tailored reports based on user-defined parameters.
-- **User-Friendly Interface:** Allows easy navigation and interaction for restaurant owners and managers.
-- **Data-Driven Recommendations:** Offers actionable suggestions based on data trends to optimize operations.
-- **SQL Query Generation:** Natural language inputs are converted into SQL queries using LangChain and OpenAI for complex data analysis.
-- **Efficient Data Retrieval:** HuggingFace embeddings and Chroma vector store for fast and accurate query results.
-- **Few-Shot Learning:** Enhances SQL query generation with limited examples for improved precision.
-Streamlit Interface: User-friendly UI for seamless interaction and business insights.
-Docker: Containerized for easy deployment and scalability across cloud platforms.
-Logging & Monitoring: Ensure reliable performance and application health.
-GitHub: Version control and collaboration for streamlined development.
-Comprehensive Documentation: Guides for both users and developers to utilize and maintain the system.
+- **LLM Integration for SQL Query Generation:** Utilizes OpenAI's `gpt-3.5-turbo-instruct` model to generate and optimize SQL queries from user-provided natural language inputs, enabling seamless interaction with the restaurant database.
+- **Few-Shot Learning with Semantic Similarity:** Implements few-shot learning using `SemanticSimilarityExampleSelector` to dynamically select the most relevant examples from a vector store (Chroma) for better query accuracy and natural language understanding.
+- **Vector Embedding for Enhanced Query Context:** Uses `HuggingFaceEmbeddings` for sentence transformers to create vector representations of examples, improving the model’s ability to understand and retrieve contextually relevant data from the restaurant database.
+- **Chroma Vector Store for Efficient Example Storage:** Manages and stores vector embeddings of few-shot examples using Chroma, enabling fast and scalable similarity searches for prompt enhancement.
+- **Custom SQL Prompt Engineering:** Builds custom SQL prompts using `PromptTemplate` and `FewShotPromptTemplate` to structure input and output, guiding the language model to effectively interact with the SQL database and generate insightful responses.
+- **Real-Time Restaurant Data Insights:** Provides real-time answers to operational and financial questions related to the restaurant, including performance metrics such as sales, inventory, and customer traffic, by directly querying the MySQL-based `restaurant_db`.
+- **Database Chain for Seamless LLM-Database Interaction:** Leverages `SQLDatabaseChain` to handle seamless communication between the language model and the MySQL database, allowing for precise query generation and data retrieval.
+- **Streamlit-based Interactive UI:** Implements a user-friendly interface using Streamlit, allowing restaurant managers to input questions and receive real-time insights in an intuitive format, with customizable background and input styling.
+- **Embeddable and Containerized Application:** Supports Docker containerization via a `Dockerfile`, allowing the application to be easily deployed and scaled across different environments.
+
 
 
 ## Project Structure
@@ -31,66 +27,92 @@ The project follows a modular structure for clarity and maintainability. Here's 
 ```
 RestoVision/
 │
-├── restaurant.sql                           # Folder containing SQL database and data files
+├── restaurant.sql           # Contains the SQL commands for setting up the restaurant database, including table schemas and initial data.
 │
-├── langchain_driver.py                         # Folder for model-related scripts (HuggingFace, LangChain, etc.)
+├── langchain_driver.py      # Configures the LangChain and OpenAI models, handling database chains and few-shot learning to generate SQL queries from natural language input.
 │
-├── few_shots.py                        # Folder for miscellaneous scripts
-├── main.py
-├── Dockerfile                      # Dockerfile to containerize the application
-├── requirements.txt                # List of Python dependencies
-├── README.md                       # Project documentation (this file)
-├── .gitignore                      # Git ignore file to exclude unnecessary files
-└── restovision.db                  # SQLite database containing restaurant data (auto-generated)
+├── few_shots.py             # Includes a list of few-shot learning examples used for improving query context and accuracy.
+├── main.py                  # The core Streamlit app that takes user input, processes the query, and returns insights based on database analysis.
+├── Dockerfile               # Defines the steps required to create a Docker container for the application, ensuring it runs consistently in any environment.
+├── requirements.txt         # Lists all the Python libraries and their versions required to run the project, allowing easy setup of the project environment.
+├── README.md                # Project documentation providing an overview, features, installation steps, and usage instructions.
+└── .gitignore               # Prevents unnecessary or sensitive files from being tracked in the Git repository.
 ```
 
-### Explanation of Key Directories:
-- **data/**: Contains raw data files that are loaded into the SQL database for analysis.
-- **models/**: Handles machine learning and natural language processing, including embeddings and SQL query generation.
-- **scripts/**: Contains utility scripts for data pre-processing and setting up the database.
-- **app/**: Contains the main application logic and UI components, primarily using Streamlit.
+### **Database Structure**
+
+The **RestoVision** application utilizes a SQL database, named `restaurant_db`, which stores and manages essential restaurant-related data. The database contains various tables to handle menu items, inventory, sales, employees, suppliers, expenses, and customer feedback.
+
+#### **Tables:**
+
+##### **1. `menu_items`**
+- `menu_item_id`: Unique ID for each menu item (Primary Key)
+- `name`: Name of the menu item
+- `category`: Category of the menu item (Starters, Main Course, Desserts, Beverages)
+- `cost_price`: Cost price of the menu item
+- `selling_price`: Selling price of the menu item
+- `is_available`: Availability status of the menu item (Boolean)
+
+##### **2. `inventory`**
+- `inventory_id`: Unique ID for each inventory item (Primary Key)
+- `item_name`: Name of the inventory item
+- `category`: Category of the inventory item (Vegetables, Spices, Grains, Beverages)
+- `stock_quantity`: Current stock level of the item
+- `reorder_level`: Minimum stock quantity before reordering
+- `unit`: Unit of measurement (kg, liters, units)
+- `supplier_id`: Reference to the supplier (Foreign Key)
+- `last_order_date`: Date of the last order
+- `next_reorder_date`: Date when the item should be reordered
+
+##### **3. `suppliers`**
+- `supplier_id`: Unique ID for each supplier (Primary Key)
+- `name`: Name of the supplier
+- `contact`: Contact information of the supplier
+- `item_supplied`: List of items supplied by the supplier
+- `payment_due`: Amount due for payment to the supplier
+
+##### **4. `sales`**
+- `sale_id`: Unique ID for each sale (Primary Key)
+- `sale_date`: Date of the sale
+- `sale_time`: Time of the sale
+- `order_id`: Unique ID for each order
+- `menu_item_id`: Reference to the menu item sold (Foreign Key)
+- `quantity`: Number of items sold in the sale
+- `price_per_unit`: Price of each item sold
+- `total`: Total price of the sale
+- `payment_method`: Method of payment (Cash, Card, Online)
+
+##### **5. `employees`**
+- `employee_id`: Unique ID for each employee (Primary Key)
+- `name`: Name of the employee
+- `role`: Employee's role (Chef, Waiter, Cashier, Manager)
+- `salary`: Employee's salary
+- `hire_date`: Date when the employee was hired
+- `hours_worked`: Total hours worked by the employee
+- `leave_balance`: Leave balance of the employee
+
+##### **6. `expenses`**
+- `expense_id`: Unique ID for each expense (Primary Key)
+- `expense_date`: Date of the expense
+- `category`: Expense category (Rent, Utilities, Marketing, Maintenance)
+- `amount`: Amount spent on the expense
+- `description`: Description of the expense
+
+##### **7. `customer_feedback`**
+- `feedback_id`: Unique ID for each customer feedback (Primary Key)
+- `feedback_date`: Date of the feedback
+- `customer_name`: Name of the customer providing feedback
+- `menu_item_id`: Reference to the menu item for which the feedback is provided (Foreign Key)
+- `rating`: Customer rating (1-5 scale)
+- `comments`: Customer's feedback comments
 
 ---
 
-## Database Structure
+### **Relationships:**
+- `sales` table is linked to the `menu_items` table through the `menu_item_id` foreign key to track which items were sold.
+- `inventory` table is linked to the `suppliers` table via the `supplier_id` foreign key to manage supplier details for each inventory item.
+- `customer_feedback` table is linked to the `menu_items` table via the `menu_item_id` foreign key to record feedback on specific items. 
 
-The RestoVision application uses a SQL database to store and manage critical restaurant data, including:
-
-### Tables:
-1. **Sales**
-   - `sale_id`: Unique ID for each sale (Primary Key)
-   - `item_id`: Reference to the item sold (Foreign Key)
-   - `quantity`: Number of items sold
-   - `total_price`: Total price of the sale
-   - `sale_date`: Date and time of the sale
-
-2. **Inventory**
-   - `item_id`: Unique ID for each inventory item (Primary Key)
-   - `item_name`: Name of the inventory item
-   - `quantity_in_stock`: Current stock level
-   - `supplier`: Supplier information
-   - `last_restocked`: Date of last restocking
-
-3. **Employee Performance**
-   - `employee_id`: Unique ID for each employee (Primary Key)
-   - `employee_name`: Name of the employee
-   - `role`: Employee role (e.g., Server, Chef)
-   - `performance_rating`: Employee performance rating (1-5 scale)
-   - `last_performance_review`: Date of the last review
-
-4. **Customer Feedback**
-   - `feedback_id`: Unique ID for each feedback entry (Primary Key)
-   - `customer_name`: Name of the customer providing feedback
-   - `feedback_text`: The feedback provided by the customer
-   - `rating`: Customer rating (1-5 scale)
-   - `date`: Date of the feedback
-
-### Relationships:
-- **Sales** are linked to **Inventory** through the `item_id`, keeping track of items sold and stock levels.
-- **Employee Performance** is a standalone table tracking reviews and performance data.
-- **Customer Feedback** links feedback to the overall service, helping track customer satisfaction.
-
----
 
 ## Installation & Setup
 
