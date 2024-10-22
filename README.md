@@ -6,7 +6,8 @@
 ## Overview
 RestoVision is an AI-powered chatbot designed to assist restaurants in analyzing operational and financial data to make informed decisions. The application converts natural language queries into SQL, retrieves relevant data, and presents actionable insights.
 
-**IMAGE**
+![image](https://github.com/user-attachments/assets/87136c26-6a17-42b6-9449-b4728b422f0b)
+
 
 ## Key Features
 - **AI Chatbot**: Analyze restaurant operations and financials for data-driven decision-making.
@@ -28,29 +29,18 @@ The project follows a modular structure for clarity and maintainability. Here's 
 ```
 RestoVision/
 │
-├── data/                           # Folder containing SQL database and data files
-│   ├── sales_data.csv              # Example sales data
-│   ├── inventory_data.csv          # Example inventory data
-│   ├── employee_performance.csv    # Example employee performance data
-│   ├── customer_feedback.csv       # Example customer feedback data
+├── .env                # Environment variables for configuration
 │
-├── models/                         # Folder for model-related scripts (HuggingFace, LangChain, etc.)
-│   ├── embeddings.py               # Script to handle HuggingFace embeddings
-│   ├── query_generation.py         # Script for SQL query generation using LangChain and OpenAI
+├── Dockerfile          # Script to containerize the application
 │
-├── scripts/                        # Folder for miscellaneous scripts
-│   ├── data_processing.py          # Script for data pre-processing and loading
-│   ├── database_setup.py           # Script to set up the SQL database
+├── few_shots.py        # few shot prompts
 │
-├── app/
-│   ├── main.py                     # Streamlit application entry point
-│   ├── ui.py                       # Script to build the Streamlit user interface
+├── langchain_driver.py # Script for SQL query generation using LangChain and OpenAI
 │
-├── Dockerfile                      # Dockerfile to containerize the application
-├── requirements.txt                # List of Python dependencies
-├── README.md                       # Project documentation (this file)
-├── .gitignore                      # Git ignore file to exclude unnecessary files
-└── restovision.db                  # SQLite database containing restaurant data (auto-generated)
+├── main.py             # Main entry point for the Streamlit app
+├── README.md           # Project documentation (this file)
+├── requirements.txt    # List of Python dependencies
+└── restaurant.sql      # MySQL database containing restaurant data (auto-generated)
 ```
 
 ### Explanation of Key Directories:
